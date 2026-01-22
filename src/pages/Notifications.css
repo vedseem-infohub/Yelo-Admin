@@ -1,0 +1,138 @@
+/* Notifications Styles */
+.notifications-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.notifications-header h1 {
+    font-size: 24px;
+    color: var(--dark);
+    margin-bottom: 4px;
+}
+
+.notifications-container {
+    display: flex;
+    gap: 20px;
+}
+
+/* Sidebar for Filters */
+.notifications-sidebar {
+    width: 250px;
+    background: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 15px;
+    height: fit-content;
+}
+
+.filter-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 15px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.filter-btn:hover {
+    background: #f8f9fa;
+    color: var(--primary);
+}
+
+.filter-btn.active {
+    background: rgba(255, 193, 7, 0.1);
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Notifications List */
+.notifications-list {
+    flex: 1;
+    background: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.notification-item {
+    display: flex;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: white;
+    transition: background 0.2s;
+}
+
+.notification-item.unread {
+    background: #fffdf5;
+    /* Very light yellow */
+}
+
+.notification-item:hover {
+    background: #fcfcfc;
+}
+
+.notif-icon-frame {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 18px;
+}
+
+.notif-content {
+    flex: 1;
+}
+
+.notif-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.notif-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--dark);
+}
+
+.notif-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.notif-body {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.mark-read-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 5px;
+}
+
+.mark-read-btn:hover {
+    text-decoration: underline;
+}
