@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { compressImage, compressImages } from '../utils/convertApiCompression';
+import { uploadImagesToCloudinary } from '../utils/cloudinaryUpload';
 import './ImageUploader.css';
 
 function ImageUploader({ images = [], onChange, maxImages = 10 }) {
@@ -16,7 +16,7 @@ function ImageUploader({ images = [], onChange, maxImages = 10 }) {
     }
     return [];
   });
-  
+
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
   const [isDragOverZone, setIsDragOverZone] = useState(false);
@@ -55,95 +55,60 @@ function ImageUploader({ images = [], onChange, maxImages = 10 }) {
     onChange(formattedImages);
   };
 
-  const [isCompressing, setIsCompressing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleFileSelect = async (files) => {
-    // Convert FileList or array to array and filter for images
     const fileArray = Array.from(files).filter(file => {
       const isImage = file.type && file.type.startsWith('image/');
       if (!isImage) {
-        // Skip non-image files silently
+        console.warn(`Skipping non-image file: ${file.name}`);
       }
       return isImage;
     });
-    
+
     if (fileArray.length === 0) {
       alert('Please select image files only');
       return;
     }
-    
-    setIsCompressing(true);
-    
+
+    setIsUploading(true);
+
     try {
-      // Compress images using ConvertAPI via backend
-      const compressedDataUrls = await compressImages(fileArray, 20); // Quality 20 for aggressive compression (target 20-30 KB)
-      
-      if (!compressedDataUrls || compressedDataUrls.length === 0) {
-        throw new Error('Compression returned no results. This should not happen.');
+      console.log(`📤 Uploading ${fileArray.length} images to Cloudinary...`);
+
+      const cloudinaryUrls = await uploadImagesToCloudinary(fileArray, { folder: 'products' });
+
+      if (!cloudinaryUrls || cloudinaryUrls.length === 0) {
+        throw new Error('Upload returned no results');
       }
-      
-      // Ensure we have the same number of results as input files
-      if (compressedDataUrls.length !== fileArray.length) {
-        // Mismatch detected but continue with available results
-      }
-      
-      const newImages = compressedDataUrls.map((compressedDataUrl, index) => {
-        if (!compressedDataUrl) {
-          throw new Error(`Compression failed for file: ${fileArray[index]?.name}`);
-        }
-        return {
-          id: `img-${Date.now()}-${Math.random()}-${index}`,
-          url: '', // URL will be set later if provided
-          preview: compressedDataUrl, // Compressed base64 data URL
-          file: fileArray[index], // Keep original file reference for re-compression if needed
-          isPrimary: imageList.length === 0 && index === 0, // First image is primary if no images exist
-          alt: fileArray[index].name || ''
-        };
-      });
-      
+
+      console.log(`✅ Received ${cloudinaryUrls.length} Cloudinary URLs`);
+
+      const newImages = cloudinaryUrls.map((url, index) => ({
+        id: `img-${Date.now()}-${Math.random()}-${index}`,
+        url: url,
+        preview: url,
+        file: null,
+        isPrimary: imageList.length === 0 && index === 0,
+        alt: fileArray[index].name || ''
+      }));
+
       const updatedList = [...imageList, ...newImages];
       handleImageChange(updatedList);
+
+      console.log(`✅ ${newImages.length} images added to list`);
     } catch (error) {
-      
-      // Fallback: use original files without compression (as base64)
-      try {
-        const promises = fileArray.map((file, index) => {
-          return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              resolve({
-                id: `img-${Date.now()}-${Math.random()}-${index}`,
-                url: '',
-                preview: e.target.result,
-                file: file, // Keep file reference
-                isPrimary: imageList.length === 0 && index === 0,
-                alt: file.name || ''
-              });
-            };
-            reader.onerror = () => {
-              reject(new Error(`Failed to read file: ${file.name}`));
-            };
-            reader.readAsDataURL(file);
-          });
-        });
-        
-        const newImages = await Promise.all(promises);
-        const updatedList = [...imageList, ...newImages];
-        handleImageChange(updatedList);
-      } catch (fallbackError) {
-        alert('Failed to process images: ' + fallbackError.message);
-        setIsCompressing(false);
-        return;
-      }
+      console.error('❌ Error uploading images:', error);
+      alert('Failed to upload images: ' + error.message);
     } finally {
-      setIsCompressing(false);
+      setIsUploading(false);
     }
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
       const remainingSlots = maxImages - imageList.length;
@@ -154,7 +119,7 @@ function ImageUploader({ images = [], onChange, maxImages = 10 }) {
         alert(`Maximum ${maxImages} images allowed`);
       }
     }
-    
+
     setDragOverIndex(null);
     setIsDragOverZone(false);
   };
@@ -186,7 +151,7 @@ function ImageUploader({ images = [], onChange, maxImages = 10 }) {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX;
     const y = e.clientY;
-    
+
     // Check if mouse is still within the drop zone bounds
     if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
       setIsDragOverZone(false);
@@ -223,7 +188,7 @@ function ImageUploader({ images = [], onChange, maxImages = 10 }) {
   };
 
   const handleUrlChange = (id, url) => {
-    const updatedList = imageList.map(img => 
+    const updatedList = imageList.map(img =>
       img.id === id ? { ...img, url, preview: url || img.preview } : img
     );
     handleImageChange(updatedList);
@@ -263,7 +228,7 @@ function ImageUploader({ images = [], onChange, maxImages = 10 }) {
       <label style={{ display: 'block', marginBottom: '10px', fontWeight: '500' }}>
         Product Images
       </label>
-      
+
       {/* Drop Zone */}
       {imageList.length < maxImages && (
         <div
@@ -295,10 +260,10 @@ function ImageUploader({ images = [], onChange, maxImages = 10 }) {
           />
           <div className="drop-zone-content">
             <div className="drop-zone-icon">📷</div>
-            {isCompressing ? (
+            {isUploading ? (
               <>
-                <p>Compressing images...</p>
-                <p className="drop-zone-hint">Please wait while images are being optimized</p>
+                <p>Uploading images to Cloudinary...</p>
+                <p className="drop-zone-hint">Please wait</p>
               </>
             ) : (
               <>
@@ -339,7 +304,7 @@ function ImageUploader({ images = [], onChange, maxImages = 10 }) {
                 <div className="image-placeholder" style={{ display: image.preview ? 'none' : 'flex' }}>
                   No Image
                 </div>
-                
+
                 {/* Primary Badge */}
                 {image.isPrimary && (
                   <div className="primary-badge">Primary</div>
@@ -355,7 +320,7 @@ function ImageUploader({ images = [], onChange, maxImages = 10 }) {
                   placeholder="Enter image URL or upload file"
                   className="image-url-input"
                 />
-                
+
                 <div className="image-actions">
                   <button
                     type="button"

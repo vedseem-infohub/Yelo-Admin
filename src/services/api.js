@@ -1,7 +1,8 @@
 // Use import.meta.env for Vite (instead of process.env)
 // Default to localhost for local development, can be overridden with VITE_API_URL env variable
-// For production: Set VITE_API_URL=https://yelo-backend.onrender.com/api in .env file
-const API_URL = import.meta.env.VITE_API_URL || import.meta.env.REACT_APP_API_URL || 'https://yelo-backend.onrender.com/api'
+// For production: Set VITE_API_URL=https://yelo-backend-r5pu.onrender.com/api in .env file
+// https://yelo-backend-r5pu.onrender.com
+const API_URL = import.meta.env.VITE_API_URL || import.meta.env.REACT_APP_API_URL || 'https://yelo-backend-r5pu.onrender.com/api'
 
 // Get auth token
 const getAuthToken = () => {
