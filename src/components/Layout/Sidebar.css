@@ -81,6 +81,38 @@
   font-weight: 600;
 }
 
+.nav-link.logout-btn {
+  color: #e53e3e;
+}
+
+.nav-link.logout-btn:hover {
+  background-color: #fff5f5;
+  color: #c53030;
+}
+
+.nav-link.locked {
+  cursor: not-allowed;
+  opacity: 0.6;
+  position: relative;
+  background-color: transparent !important;
+  color: var(--text-secondary) !important;
+}
+
+.nav-link.locked:hover {
+  padding-left: 16px; /* Prevent movement effect */
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.nav-link.locked i::before {
+  filter: grayscale(1) !important;
+  opacity: 0.5 !important;
+}
+
+.lock-badge {
+  margin-left: auto;
+  font-size: 14px;
+}
+
 /* Icon Styles */
 .nav-link i,
 .nav-link svg {
