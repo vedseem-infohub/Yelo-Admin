@@ -113,3 +113,13 @@ export const ordersAPI = {
   reassignShop: (id, shopSlug) => apiFetch(`/orders/admin/${id}/reassign-shop`, { method: 'POST', body: { shopSlug } }),
   complete: (id) => apiFetch(`/orders/admin/${id}/complete`, { method: 'POST' }),
 }
+
+// User Admin API
+export const userAdminAPI = {
+  getAll: () => apiFetch('/user-admin'),
+  create: (data) => apiFetch('/user-admin', { method: 'POST', body: data }),
+  update: (id, data) => apiFetch(`/user-admin/${id}`, { method: 'PUT', body: data }),
+  delete: (id) => apiFetch(`/user-admin/${id}`, { method: 'DELETE' }),
+  login: (email, password) => apiFetch('/user-admin/login', { method: 'POST', body: { email, password } }),
+}
+
