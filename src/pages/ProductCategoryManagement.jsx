@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/Layout/AdminLayout';
 import { categoriesAPI } from '../services/api';
+import SingleImageUploader from '../components/SingleImageUploader';
 import './ProductCategoryManagement.css';
 
 function ProductCategoryManagement() {
@@ -234,6 +235,7 @@ function ProductCategoryManagement() {
         
         // Fetch fresh data from backend in background and update selected category
         const freshData = await fetchCategories();
+        fetchFreeSubcategories(); // Refresh free subcategories list as well
         const freshCategory = freshData.find(c => c.slug === selectedCategory.slug);
         if (freshCategory) {
           setSelectedCategory(freshCategory);
@@ -541,23 +543,12 @@ function ProductCategoryManagement() {
                       placeholder="Auto-generated if empty (e.g. mens-wear)"
                     />
                   </div>
-                  <div className="form-group">
-                    <label>Category Image URL</label>
-                    <input
-                      type="url"
-                      value={categoryFormData.image}
-                      onChange={(e) => setCategoryFormData({ ...categoryFormData, image: e.target.value })}
-                      placeholder="https://example.com/image.jpg"
-                    />
-                    {categoryFormData.image && (
-                      <img 
-                        src={categoryFormData.image} 
-                        alt="Preview"
-                        style={{ width: '100px', height: '100px', objectFit: 'cover', marginTop: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
-                        onError={(e) => { e.target.style.display = 'none'; }}
-                      />
-                    )}
-                  </div>
+                  <SingleImageUploader
+                    label="Category Image"
+                    currentImage={categoryFormData.image}
+                    onImageChange={(url) => setCategoryFormData({ ...categoryFormData, image: url })}
+                    folder="categories"
+                  />
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-outline" onClick={() => setIsCategoryModalOpen(false)}>Cancel</button>
@@ -599,23 +590,12 @@ function ProductCategoryManagement() {
                       placeholder="Auto-generated if empty (e.g. t-shirts)"
                     />
                   </div>
-                  <div className="form-group">
-                    <label>Subcategory Image URL</label>
-                    <input
-                      type="url"
-                      value={subcategoryFormData.image}
-                      onChange={(e) => setSubcategoryFormData({ ...subcategoryFormData, image: e.target.value })}
-                      placeholder="https://example.com/image.jpg"
-                    />
-                    {subcategoryFormData.image && (
-                      <img 
-                        src={subcategoryFormData.image} 
-                        alt="Preview"
-                        style={{ width: '100px', height: '100px', objectFit: 'cover', marginTop: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
-                        onError={(e) => { e.target.style.display = 'none'; }}
-                      />
-                    )}
-                  </div>
+                  <SingleImageUploader
+                    label="Subcategory Image"
+                    currentImage={subcategoryFormData.image}
+                    onImageChange={(url) => setSubcategoryFormData({ ...subcategoryFormData, image: url })}
+                    folder="subcategories"
+                  />
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-outline" onClick={() => setIsSubcategoryModalOpen(false)}>Cancel</button>
